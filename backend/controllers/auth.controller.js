@@ -101,5 +101,3 @@ export async function logout(req,res){
         res.status(500).json({success:false, message:"internal servert error"});
     }
 }
-
-// IZoURXuO2CX10nNf
