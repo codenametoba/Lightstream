@@ -6,23 +6,23 @@ export async function signup(req,res){
     try {
         const{email, password, username} = req.body;
         if (!email || !password|| !username){
-            return res.status(400)({sucess:false,message:"All fields are required"})
+            return res.status(400).json({sucess:false,message:"All fields are required"})
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if(!emailRegex.test(email)){
-            return res.status(400).json({success:false,message:"invalid email"})
+            return res.status(400).json({success:false,message:"Invalid email"})
         }
         if (password.length < 6) {
-            return res.status(400).json({success:false, message:"password must be at least six characters"})
+            return res.status(400).json({success:false, message:"Password must be at least six characters"})
         }
-        const existingUserByEmail = await User.findOne({email:email})
+        const existingUserByEmail = await User.findOne({email})
 
         if (existingUserByEmail){
             return res.status(400).json({success:false, message:"Email already exists"})
         }
 
-        const existingUserByUsername = await User.findOne({username:username})
+        const existingUserByUsername = await User.findOne({username})
 
 
         if (existingUserByUsername){
@@ -43,11 +43,11 @@ export async function signup(req,res){
             username,
             image
         });
-
+        await newUser.save();
         generateTokenAndSetCookie(newUser._id, res);
         
         //hide password
-        await newUser.save();
+        
     res.status(201).json({
         success:true,
         user:{
@@ -56,7 +56,7 @@ export async function signup(req,res){
         }
     });
     } catch (error) {
-        console.log("Error in signup controller", error.message);
+        console.log("Error in signup controller", error.stack);
         res.status(500).json({success: false, message: "internal server error"});
         
     }
@@ -87,8 +87,8 @@ export async function login(req,res){
 
         })
     } catch (error) {
-        console.log("Error in login controller", error.message);
-        res.status(500).json({success: false, message:"internal server error"});
+        console.log("Error in login controller", error.stack);
+        res.status(500).json({success: false, message:"Internal server error"});
     }
 }
 
@@ -97,7 +97,7 @@ export async function logout(req,res){
         res.clearCookie("jwt-lightstream"),
         res.status(200).json({success: true, message:"logged out successfully"});
     } catch (error) {
-        console.log("Error in logout controller", error.message);
-        res.status(500).json({success:false, message:"internal servert error"});
+        console.log("Error in logout controller", error.stack);
+        res.status(500).json({success:false, message:"Internal servert error"});
     }
 }
